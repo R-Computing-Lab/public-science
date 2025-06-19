@@ -47,7 +47,33 @@ load_clean_data <- function(return_all=FALSE) {
      !file.exists("data/SONA - Willingness to Participate in Research_Cleaning_v2.sav")) {
   #  stop("Data files not found. Please ensure the data files are in the 'data' directory.")
     names_df <- read.csv("data/names.csv") %>% rename("name"= x)
-    merged_data <- setNames(as.data.frame(matrix(nrow = 0, ncol = nrow(names_df))), names_df$name)
+    merged_data <- setNames(as.data.frame(matrix(nrow = 0, ncol = nrow(names_df))), names_df$name) %>% select(-c(
+      q_recaptcha_score,
+      progress,
+      finished,
+      status,
+      consent,
+      attention_check1,
+      attention_check2,
+      attention_check3,
+      attention_check1r,attention_check2r,
+      attention_check3r,attention_check_sum,
+      research_type_9,
+      research_type_10,
+      miss_items_hai,
+      miss_items_pswq,
+      submissionid,
+      statusv_p,
+      customstudytncsacceptedatv_p,
+      startedatv_p,
+      completedatv_p,
+      reviewedatv_p,
+      archivedatv_p,
+      timetakenv_p,
+      totalapprovalsv_p,
+      duration_minutes,
+      attention_check2_sona,
+      attention_check3_sona))
     
     return(merged_data)
    }else {

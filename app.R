@@ -11,56 +11,61 @@ source("setup.R")
 # UI
 ui <- fluidPage(
   titlePanel("Behavior Genetics Research Participation Explorer"),
-
   sidebarLayout(
     sidebarPanel(
-      if (interactive()){selectInput("plot_var", "Select a Variable to Plot", choices = NULL)},
+      if (interactive()) {
+        selectInput("plot_var", "Select a Variable to Plot", choices = NULL)
+      },
       checkboxGroupInput("samples", "Filter by Sample",
-                         choices = c("prolific", "SONA"),
-                         selected = c("prolific", "SONA")),
+        choices = c("prolific", "SONA"),
+        selected = c("prolific", "SONA")
+      ),
       hr(),
       selectInput("outcome_vars", "Select Outcomes for Logistic Regression",
-                  choices = NULL, multiple = TRUE),
+        choices = NULL, multiple = TRUE
+      ),
       selectInput("predictor_vars", "Select Predictors for Logistic Regression",
-                  choices = NULL, multiple = TRUE),
+        choices = NULL, multiple = TRUE
+      ),
       checkboxInput("filter_sig", "Show Only p < .05 in Heatmap", FALSE),
       checkboxInput("interactive", "Make Heatmap Interactive", TRUE),
       actionButton("run_model", "Run Logistic Models")
     ),
-
     mainPanel(
       tabsetPanel(
         if (interactive()) {
-       tabPanel("Distribution Plot", plotOutput("descriptives_plot"))
+          tabPanel("Distribution Plot", plotOutput("descriptives_plot"))
         },
-        tabPanel("Odds Ratios Heatmap",
-                 conditionalPanel(
-                   condition = "input.interactive == true",
-                   plotlyOutput("heatmap_plot_plotly")
-                 ),
-                 conditionalPanel(
-                   condition = "input.interactive == false",
-                   plotOutput("heatmap_plot")
-                 )
+        tabPanel(
+          "Odds Ratios Heatmap",
+          conditionalPanel(
+            condition = "input.interactive == true",
+            plotlyOutput("heatmap_plot_plotly")
+          ),
+          conditionalPanel(
+            condition = "input.interactive == false",
+            plotOutput("heatmap_plot")
+          )
         ),
-        tabPanel("Model Results",
-
-                 conditionalPanel(
-                   condition = "input.table_format == 'Summary Table'",
-                   DTOutput("table_out")
-                 ),
-                 conditionalPanel(
-                   condition = "input.table_format == 'Regression Table'",
-                   DTOutput("regression_style_table")
-                 ),
-radioButtons("table_format", "Display Format",
-             choices = c("Summary Table", "Regression Table"),
-             selected = "Summary Table",inline = TRUE)
+        tabPanel(
+          "Model Results",
+          conditionalPanel(
+            condition = "input.table_format == 'Summary Table'",
+            DTOutput("table_out")
+          ),
+          conditionalPanel(
+            condition = "input.table_format == 'Regression Table'",
+            DTOutput("regression_style_table")
+          ),
+          radioButtons("table_format", "Display Format",
+            choices = c("Summary Table", "Regression Table"),
+            selected = "Summary Table", inline = TRUE
+          )
+        )
       )
     )
   )
-  )
-)  
+)
 
 # Server
 server <- function(input, output, session) {
@@ -71,8 +76,11 @@ server <- function(input, output, session) {
     updateSelectInput(session, "plot_var", choices = all_vars, selected = "age")
     outcome_choices <- all_vars[str_detect(all_vars, "^research")]
     predictor_choices <- all_vars
-    updateSelectInput(session, "outcome_vars", choices = outcome_choices)
-    updateSelectInput(session, "predictor_vars", choices = predictor_choices)
+    updateSelectInput(session, "outcome_vars", choices = outcome_choices, selected = "research_type_12")
+    updateSelectInput(session, "predictor_vars",
+      choices = predictor_choices,
+      selected = "race_combined"
+    )
   })
 
 
@@ -82,11 +90,9 @@ server <- function(input, output, session) {
   })
 
 
-
-
   model_results <- eventReactive(input$run_model, {
     req(input$outcome_vars, input$predictor_vars)
-    
+
     dataset_name <- if (identical(input$samples, c("SONA"))) {
       "sona"
     } else if (identical(input$samples, c("prolific"))) {
@@ -97,47 +103,56 @@ server <- function(input, output, session) {
 
     model_results_list <- list()
 
-      for (outcome in input$outcome_vars) {
-        filename <- glue("data/{dataset_name}__{outcome}.rds")
-        model_results_list[[outcome]] <- readRDS(filename) %>%
-          filter(predictor %in% input$predictor_vars)
-      }
-return(bind_rows(model_results_list))#, .id = "outcome_id"))
+    for (outcome in input$outcome_vars) {
+      filename <- glue("data/{dataset_name}__{outcome}.rds")
+      model_results_list[[outcome]] <- readRDS(filename) %>%
+        filter(predictor %in% input$predictor_vars)
+    }
+    return(bind_rows(model_results_list)) # , .id = "outcome_id"))
   })
 
 
   output$descriptives_plot <- renderPlot({
     req(input$plot_var)
     df <- filtered_data()
-    if (nrow(df) == 0) return(NULL)
+    if (nrow(df) == 0) {
+      return(NULL)
+    }
     var <- input$plot_var
-# add title of dataset
+    # add title of dataset
     if (is.numeric(df[[var]])) {
-      ggplot(df, aes(x =  .data[[var]], fill = sample)) +
+      ggplot(df, aes(x = .data[[var]], fill = sample)) +
         geom_density(alpha = 0.5) +
-        labs(title = glue::glue("Density Plot of {var} by Sample"),
-             x = var, y = "Density") +
+        labs(
+          title = glue::glue("Density Plot of {var} by Sample"),
+          x = var, y = "Density"
+        ) +
         theme_minimal()
-
     } else if (is.factor(df[[var]]) || is.character(df[[var]])) {
       df[[var]] <- as.factor(df[[var]])
 
-      ggplot(df, aes(x =  .data[[var]], fill = sample)) +
+      ggplot(df, aes(x = .data[[var]], fill = sample)) +
         geom_bar(position = "dodge") +
-        labs(title = glue::glue("Bar Plot of {var} by Sample"),
-             x = var, y = "Count") +
+        labs(
+          title = glue::glue("Bar Plot of {var} by Sample"),
+          x = var, y = "Count"
+        ) +
         theme_minimal() +
         theme(axis.text.x = element_text(angle = 45, hjust = 1))
     } else {
-      ggplot() + theme_void() + ggtitle("Unsupported variable type.")
+      ggplot() +
+        theme_void() +
+        ggtitle("Unsupported variable type.")
     }
   })
 
   output$heatmap_plot_plotly <- renderPlotly({
     df <- model_results()
-    if (nrow(df) == 0) return(NULL)
+    if (nrow(df) == 0) {
+      return(NULL)
+    }
     if (input$filter_sig) df <- df %>% filter(p.value < 0.05)
-    df <- df %>% mutate(log_odds = log(estimate)) #%>%
+    df <- df %>% mutate(log_odds = log(estimate)) # %>%
     #  filter(!term %in% c("(Intercept)","Intercept","intercept"))
     df <- tidyr::complete(df, term, outcome, fill = list(log_odds = NA))
 
@@ -147,26 +162,27 @@ return(bind_rows(model_results_list))#, .id = "outcome_id"))
         outcome = factor(outcome, levels = unique(outcome))
       )
 
-static_plot <-    ggplot(df, aes(x = predictor, y = outcome, fill = log_odds)) +
+    static_plot <- ggplot(df, aes(x = predictor, y = outcome, fill = log_odds)) +
       geom_tile() +
       scale_fill_gradient2(low = "blue", high = "red", mid = "white", midpoint = 0) +
       theme_minimal() +
       theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
       labs(title = "Odds Ratios (log scale)", x = "Predictors", y = "Outcome")
 
-p <- plotly::ggplotly(static_plot)
+    p <- plotly::ggplotly(static_plot)
 
-p
-
+    p
   })
 
   output$heatmap_plot <- renderPlot({
     df <- model_results()
-    if (nrow(df) == 0) return(NULL)
+    if (nrow(df) == 0) {
+      return(NULL)
+    }
     if (input$filter_sig) df <- df %>% filter(p.value < 0.05)
-    df <- df %>% mutate(log_odds = round(log(estimate),digits = 3))
-      
-     # filter(!term %in% c("(Intercept)","Intercept","intercept"))
+    df <- df %>% mutate(log_odds = round(log(estimate), digits = 3))
+
+    # filter(!term %in% c("(Intercept)","Intercept","intercept"))
     ggplot(df, aes(x = predictor, y = outcome, fill = log_odds)) +
       geom_tile() +
       scale_fill_gradient2(low = "blue", high = "red", mid = "white", midpoint = 0) +
@@ -174,30 +190,32 @@ p
       theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
       labs(title = "Odds Ratios (log scale)", x = "Predictors", y = "Outcome")
   })
-  
-  
+
+
   output$table_out <- DT::renderDT({
     df <- model_results()
-    if (nrow(df) == 0) return(NULL)
+    if (nrow(df) == 0) {
+      return(NULL)
+    }
     if (input$filter_sig) df <- df %>% filter(p.value < 0.05)
     # term,estimate,std.error,statistic,p.value,conf.low,conf.high,predictor,outcome,null.deviance,df.null,logLik,AIC,BIC,deviance,df.residual,nobs
     df <- df %>%
       select(outcome, predictor, term, estimate, p.value, conf.low, conf.high, nobs) %>%
       mutate(log_odds = log(estimate)) %>%
       arrange(outcome, predictor)
-    
+
     DT::datatable(
       df,
       rownames = FALSE,
       extensions = "Buttons",
       options = list(
-        dom = 'Bfrtip',
-        buttons = c('copy', 'csv'),
+        dom = "Bfrtip",
+        buttons = c("copy", "csv"),
         scrollX = TRUE,
         pageLength = 10,
         autoWidth = TRUE,
         columnDefs = list(
-          list(className = 'dt-center', targets = "_all")
+          list(className = "dt-center", targets = "_all")
         )
       ),
       colnames = c(
@@ -208,15 +226,17 @@ p
       DT::formatRound(columns = c("estimate", "conf.low", "conf.high", "log_odds"), digits = 3) %>%
       DT::formatSignif(columns = "p.value", digits = 2)
   })
-  
-  
-  output$regression_style_table <-  DT::renderDT({
+
+
+  output$regression_style_table <- DT::renderDT({
     df <- model_results()
-    if (nrow(df) == 0) return(NULL)
+    if (nrow(df) == 0) {
+      return(NULL)
+    }
     if (input$filter_sig) {
       df <- df %>% filter(p.value < 0.05)
     }
-    
+
     df <- df %>%
       mutate(
         model_id = paste0(outcome, "___", predictor),
@@ -232,7 +252,7 @@ p
     # Extract coefficients
     coef_rows <- df %>%
       select(model_id, term, formatted)
-    
+
     # Extract fit statistics
     stats_rows <- df %>%
       select(model_id, AIC, logLik, nobs) %>%
@@ -241,35 +261,40 @@ p
       mutate(formatted = as.character(round(formatted, 3)))
     # Combine everything
     all_rows <- bind_rows(coef_rows, stats_rows)
-    
+
     # Reshape: term = rows, outcome = columns
     regression_table <- all_rows %>%
       pivot_wider(names_from = model_id, values_from = formatted)
-    
+
     # Order rows: intercept, predictors, then fit stats
     all_terms <- regression_table$term
-    user_predictors <- input$predictor_vars
-    ordered_rows <- c("intercept", user_predictors, "AIC", "logLik", "nobs")
-    
+    # how about just terms that contain "intercept" and then the rest
+
+    user_intercept <- unique(c("(Intercept)", "intercept", "Intercept", grep("intercept", all_terms, value = TRUE)))
+    user_predictors <- unique(c(input$predictor_vars, all_terms))
+    user_predictors <- user_predictors[!user_predictors %in% user_intercept]
+
+
+    ordered_rows <- unique(c(user_intercept, user_predictors, "AIC", "logLik", "nobs"))
+
     regression_table <- regression_table %>%
       arrange(factor(term, levels = ordered_rows))
-    
+
     colnames(regression_table)[-1] <- gsub("___.*", "", colnames(regression_table)[-1])
-    
+
     DT::datatable(
       regression_table,
       rownames = FALSE,
       escape = FALSE,
       options = list(
         pageLength = nrow(regression_table),
-        dom = 't',
+        dom = "t",
         ordering = FALSE,
         autoWidth = TRUE,
-        columnDefs = list(list(className = 'dt-center', targets = "_all"))
+        columnDefs = list(list(className = "dt-center", targets = "_all"))
       )
     )
   })
-  
 }
 # Create the Shiny app
 shinyApp(ui = ui, server = server)
