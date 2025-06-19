@@ -25,7 +25,11 @@ ui <- fluidPage(
                   choices = NULL, multiple = TRUE),
       checkboxInput("filter_sig", "Show Only p < .05 in Heatmap", TRUE),
       checkboxInput("interactive", "Make Heatmap Interactive", FALSE),
-      actionButton("run_model", "Run Logistic Models")
+      actionButton("run_model", "Run Logistic Models"),
+      hr(),
+      radioButtons("table_format", "Display Format",
+                   choices = c("Summary Table", "Regression Table"),
+                   selected = "Summary Table")
     ),
 
     mainPanel(
@@ -41,11 +45,20 @@ ui <- fluidPage(
                    plotOutput("heatmap_plot")
                  )
         ),
-        tabPanel("Model Results Table", dataTableOutput("table_out"))
+        tabPanel("Model Results",
+                 conditionalPanel(
+                   condition = "input.table_format == 'Summary Table'",
+                   DTOutput("table_out")
+                 ),
+                 conditionalPanel(
+                   condition = "input.table_format == 'Regression Table'",
+                   DTOutput("regression_style_table")
+                 )
       )
     )
   )
-)
+  )
+)  
 
 # Server
 server <- function(input, output, session) {
@@ -160,18 +173,101 @@ p
       theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
       labs(title = "Odds Ratios (log scale)", x = "Predictors", y = "Outcome")
   })
-
+  
+  
   output$table_out <- DT::renderDT({
-    df <-  model_results()
-    # term,estimate,std.error,statistic,p.value,conf.low,conf.high,predictor,outcome,null.deviance,df.null,logLik,AIC,BIC,deviance,df.residual,nobs
+    df <- model_results()
     if (input$filter_sig) df <- df %>% filter(p.value < 0.05)
+    # term,estimate,std.error,statistic,p.value,conf.low,conf.high,predictor,outcome,null.deviance,df.null,logLik,AIC,BIC,deviance,df.residual,nobs
     df <- df %>%
-      select(outcome, predictor, term, estimate, p.value, conf.low, conf.high,nobs) %>%
-      mutate(across(c(estimate, conf.low, conf.high), ~ round(.x, 3)),
-             p.value = format.pval(p.value, digits = 2, scientific = TRUE)) %>%
+      select(outcome, predictor, term, estimate, p.value, conf.low, conf.high, nobs) %>%
       mutate(log_odds = log(estimate)) %>%
       arrange(outcome, predictor)
+    
+    DT::datatable(
+      df,
+      rownames = FALSE,
+      extensions = "Buttons",
+      options = list(
+        dom = 'Bfrtip',
+        buttons = c('copy', 'csv', 'excel'),
+        scrollX = TRUE,
+        pageLength = 10,
+        autoWidth = TRUE,
+        columnDefs = list(
+          list(className = 'dt-center', targets = "_all")
+        )
+      ),
+      colnames = c(
+        "Outcome", "Predictor", "Term", "Estimate", "p-Value",
+        "CI Lower", "CI Upper", "N Obs", "Log(Odds)"
+      )
+    ) %>%
+      DT::formatRound(columns = c("estimate", "conf.low", "conf.high", "log_odds"), digits = 3) %>%
+      DT::formatSignif(columns = "p.value", digits = 2)
   })
+  
+  
+  output$regression_style_table <-  DT::renderDT({
+    df <- model_results()
+    
+    if (input$filter_sig) {
+      df <- df %>% filter(p.value < 0.05)
+    }
+    
+    df <- df %>%
+      mutate(
+        model_id = paste0(outcome, "___", predictor),
+        stars = case_when(
+          p.value < 0.001 ~ "***",
+          p.value < 0.01 ~ "**",
+          p.value < 0.05 ~ "*",
+          TRUE ~ ""
+        ),
+        formatted = paste0(round(estimate, 2), stars, "<br>(", round(std.error, 2), ")")
+      )
+
+    # Extract coefficients
+    coef_rows <- df %>%
+      select(model_id, term, formatted)
+    
+    # Extract fit statistics
+    stats_rows <- df %>%
+      select(model_id, AIC, logLik, nobs) %>%
+      distinct() %>%
+      pivot_longer(cols = c(AIC, logLik, nobs), names_to = "term", values_to = "formatted") %>%
+      mutate(formatted = as.character(round(formatted, 2)))
+    # Combine everything
+    all_rows <- bind_rows(coef_rows, stats_rows)
+    
+    # Reshape: term = rows, outcome = columns
+    regression_table <- all_rows %>%
+      pivot_wider(names_from = model_id, values_from = formatted)
+    
+    # Order rows: intercept, predictors, then fit stats
+    all_terms <- regression_table$term
+    user_predictors <- input$predictor_vars
+    ordered_rows <- c("intercept", user_predictors, "AIC", "logLik", "nobs")
+    
+    regression_table <- regression_table %>%
+      arrange(factor(term, levels = ordered_rows))
+    
+    colnames(regression_table)[-1] <- gsub("___.*", "", colnames(regression_table)[-1])
+    
+    DT::datatable(
+      regression_table,
+      rownames = FALSE,
+      escape = FALSE,
+      options = list(
+        pageLength = nrow(regression_table),
+        dom = 't',
+        ordering = FALSE,
+        autoWidth = TRUE,
+        columnDefs = list(list(className = 'dt-center', targets = "_all"))
+      )
+    )
+  })
+  
 }
 # Create the Shiny app
 shinyApp(ui = ui, server = server)
