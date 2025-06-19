@@ -29,7 +29,6 @@ ui <- fluidPage(
       ),
       actionButton("run_model", "Run Logistic Models"),
       hr(),
-      checkboxInput("filter_sig_table", "Show Only p < .05 in Tables", FALSE),
       checkboxInput("heatmap_interactive", "Make Heatmap Interactive", TRUE)
     ),
     mainPanel(
@@ -37,6 +36,9 @@ ui <- fluidPage(
         if (interactive()) {
           tabPanel("Distribution Plot", plotOutput("descriptives_plot"))
         },
+        tabPanel("Outcome Variable Reference",
+                   DTOutput("outcome_reference_table")
+        ),
         tabPanel(
           "Odds Ratios Heatmap",
           checkboxInput("filter_sig_heat", "Show Only p < .05 in Heatmap", FALSE),
@@ -51,6 +53,10 @@ ui <- fluidPage(
         ),
         tabPanel(
           "Model Results",
+          radioButtons("table_format", "Display Format",
+                       choices = c("Summary Table", "Regression Table"),
+                       selected = "Summary Table", inline = TRUE
+          ),
           conditionalPanel(
             condition = "input.table_format == 'Summary Table'",
             DTOutput("table_out")
@@ -59,10 +65,7 @@ ui <- fluidPage(
             condition = "input.table_format == 'Regression Table'",
             DTOutput("regression_style_table")
           ),
-          radioButtons("table_format", "Display Format",
-            choices = c("Summary Table", "Regression Table"),
-            selected = "Summary Table", inline = TRUE
-          )
+          checkboxInput("filter_sig_table", "Show Only p < .05 in Tables", FALSE)
         )
       )
     )
@@ -114,8 +117,55 @@ server <- function(input, output, session) {
     }
     return(bind_rows(model_results_list)) # , .id = "outcome_id"))
   })
-
-
+core_item <-  "Please take your time and read through the following list. Assume that you would be compensated for your time. This is hypothetical, so also assume that you have &quot;free time&quot; that would allow you to participate."
+  outcome_reference <- tibble::tibble(
+    Variable_name = c("research_type_1",
+                "research_type_2",
+                "research_type_3",
+                "research_type_4",
+                "research_type_5",
+                "research_type_6",
+                "research_type_7",
+                "research_type_8",
+                "research_type_9updated",
+                "research_type_10updated",
+                "research_type_11",
+                "research_type_12",
+                "research_type_13"
+                ),
+    Description = c(
+      "Research Type 1: Questionnaire/Survey",
+      "Research Type 2: Focus group in-person",
+      "Research Type 3: Focus group online",
+      "Research Type 4: One-on-one interview in-person",
+      "Research Type 5: One-on-one interview on phone",
+      "Research Type 6: One-on-one interview via Zoom",
+      "Research Type 7: Saliva for hormone levels",
+      "Research Type 8: Blood for hormone levels",
+      "Research Type 9: Saliva for genetic research",
+      "Research Type 10: Blood for genetic research",
+      "Research Type 11: Phone access",
+      "Research Type 12: Eye-tracking",
+      "Research Type 13: EEG, MRI, PET scan"
+    )
+    )
+    
+  
+  
+  output$outcome_reference_table <- DT::renderDT({
+    DT::datatable(
+      outcome_reference,
+      rownames = FALSE,
+      options = list(
+        dom = "t",
+        pageLength = nrow(outcome_reference),
+        autoWidth = TRUE,
+        columnDefs = list(list(className = "dt-left", targets = "_all"))
+      )
+    )
+  })
+  
+  
   output$descriptives_plot <- renderPlot({
     req(input$plot_var)
     df <- filtered_data()

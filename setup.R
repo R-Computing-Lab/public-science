@@ -74,7 +74,6 @@ load_clean_data <- function(return_all=FALSE) {
       duration_minutes,
       attention_check2_sona,
       attention_check3_sona))
-    
     return(merged_data)
    }else {
   prolific <- read_sav("data/Prolific - Willingness to Participate in Research_Cleaning_v2.sav") %>%
