@@ -27,9 +27,10 @@ ui <- fluidPage(
       selectInput("predictor_vars", "Select Predictors for Logistic Regression",
         choices = NULL, multiple = TRUE
       ),
-      checkboxInput("filter_sig", "Show Only p < .05 in Heatmap", FALSE),
-      checkboxInput("interactive", "Make Heatmap Interactive", TRUE),
-      actionButton("run_model", "Run Logistic Models")
+      actionButton("run_model", "Run Logistic Models"),
+      hr(),
+      checkboxInput("filter_sig_table", "Show Only p < .05 in Tables", FALSE),
+      checkboxInput("heatmap_interactive", "Make Heatmap Interactive", TRUE)
     ),
     mainPanel(
       tabsetPanel(
@@ -38,12 +39,13 @@ ui <- fluidPage(
         },
         tabPanel(
           "Odds Ratios Heatmap",
+          checkboxInput("filter_sig_heat", "Show Only p < .05 in Heatmap", FALSE),
           conditionalPanel(
-            condition = "input.interactive == true",
+            condition = "input.heatmap_interactive == true",
             plotlyOutput("heatmap_plot_plotly")
           ),
           conditionalPanel(
-            condition = "input.interactive == false",
+            condition = "input.heatmap_interactive == false",
             plotOutput("heatmap_plot")
           )
         ),
@@ -76,7 +78,9 @@ server <- function(input, output, session) {
     updateSelectInput(session, "plot_var", choices = all_vars, selected = "age")
     outcome_choices <- all_vars[str_detect(all_vars, "^research")]
     predictor_choices <- all_vars
-    updateSelectInput(session, "outcome_vars", choices = outcome_choices, selected = "research_type_12")
+    updateSelectInput(session, "outcome_vars", 
+                      choices = outcome_choices, 
+                      selected = "research_type_12")
     updateSelectInput(session, "predictor_vars",
       choices = predictor_choices,
       selected = "race_combined"
@@ -148,10 +152,10 @@ server <- function(input, output, session) {
 
   output$heatmap_plot_plotly <- renderPlotly({
     df <- model_results()
+    if (input$filter_sig_heat==TRUE) df <- df %>% filter(p.value < 0.05)
     if (nrow(df) == 0) {
       return(NULL)
     }
-    if (input$filter_sig) df <- df %>% filter(p.value < 0.05)
     df <- df %>% mutate(log_odds = log(estimate)) # %>%
     #  filter(!term %in% c("(Intercept)","Intercept","intercept"))
     df <- tidyr::complete(df, term, outcome, fill = list(log_odds = NA))
@@ -176,10 +180,11 @@ server <- function(input, output, session) {
 
   output$heatmap_plot <- renderPlot({
     df <- model_results()
+    if (input$filter_sig_heat==TRUE) df <- df %>% filter(p.value < 0.05)
     if (nrow(df) == 0) {
       return(NULL)
     }
-    if (input$filter_sig) df <- df %>% filter(p.value < 0.05)
+
     df <- df %>% mutate(log_odds = round(log(estimate), digits = 3))
 
     # filter(!term %in% c("(Intercept)","Intercept","intercept"))
@@ -197,7 +202,7 @@ server <- function(input, output, session) {
     if (nrow(df) == 0) {
       return(NULL)
     }
-    if (input$filter_sig) df <- df %>% filter(p.value < 0.05)
+    if (input$filter_sig_table==TRUE) df <- df %>% filter(p.value < 0.05)
     # term,estimate,std.error,statistic,p.value,conf.low,conf.high,predictor,outcome,null.deviance,df.null,logLik,AIC,BIC,deviance,df.residual,nobs
     df <- df %>%
       select(outcome, predictor, term, estimate, p.value, conf.low, conf.high, nobs) %>%
@@ -233,7 +238,7 @@ server <- function(input, output, session) {
     if (nrow(df) == 0) {
       return(NULL)
     }
-    if (input$filter_sig) {
+    if (input$filter_sig_table==TRUE) {
       df <- df %>% filter(p.value < 0.05)
     }
 
