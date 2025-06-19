@@ -46,8 +46,11 @@ load_clean_data <- function(return_all=FALSE) {
   if(!file.exists("data/Prolific - Willingness to Participate in Research_Cleaning_v2.sav") ||
      !file.exists("data/SONA - Willingness to Participate in Research_Cleaning_v2.sav")) {
   #  stop("Data files not found. Please ensure the data files are in the 'data' directory.")
-    return(NULL)
-  }else{
+    names_df <- read.csv("data/names.csv") %>% rename("name"= x)
+    merged_data <- setNames(as.data.frame(matrix(nrow = 0, ncol = nrow(names_df))), names_df$name)
+    
+    return(merged_data)
+   }else {
   prolific <- read_sav("data/Prolific - Willingness to Participate in Research_Cleaning_v2.sav") %>%
     janitor::clean_names() %>% mutate(
       sample = "prolific",

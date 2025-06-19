@@ -87,7 +87,7 @@ server <- function(input, output, session) {
     model_results_list <- list()
 
       for (outcome in input$outcome_vars) {
-        filename <- glue("precomputed/{dataset_name}__{outcome}.rds")
+        filename <- glue("data/{dataset_name}__{outcome}.rds")
         model_results_list[[outcome]] <- readRDS(filename) %>%
           filter(predictor %in% input$predictor_vars)
       }
