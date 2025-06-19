@@ -36,13 +36,18 @@ install_packages_if_missing <- function(packages) {
 }
 
 
-## good workaround for stupid default setting; runningg mean function but we are overriding default
+## good workaround for stupid default setting; running mean function but we are overriding default
 new_mean=function(x){
   mean(x,na.rm = TRUE)
 }
 
 # Load and merge data once on startup
 load_clean_data <- function(return_all=FALSE) {
+  if(!file.exists("data/Prolific - Willingness to Participate in Research_Cleaning_v2.sav") ||
+     !file.exists("data/SONA - Willingness to Participate in Research_Cleaning_v2.sav")) {
+  #  stop("Data files not found. Please ensure the data files are in the 'data' directory.")
+    return(NULL)
+  }else{
   prolific <- read_sav("data/Prolific - Willingness to Participate in Research_Cleaning_v2.sav") %>%
     janitor::clean_names() %>% mutate(
       sample = "prolific",
@@ -99,6 +104,7 @@ load_clean_data <- function(return_all=FALSE) {
   date_columns <- c("start_date", "end_date", "recorded_date")
   merged_data <- merged_data %>%
     mutate(across(all_of(intersect(date_columns, names(.))), \(x) as.POSIXct(x, format = "%Y-%m-%d %H:%M:%S", tz = "UTC")))
+  }
 if(return_all==TRUE){
 list(merged = merged_data, sona = sona, prolific = prolific)
 } else {
