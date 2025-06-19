@@ -14,7 +14,7 @@ ui <- fluidPage(
 
   sidebarLayout(
     sidebarPanel(
-      selectInput("plot_var", "Select a Variable to Plot", choices = NULL),
+      if (interactive()){selectInput("plot_var", "Select a Variable to Plot", choices = NULL)},
       checkboxGroupInput("samples", "Filter by Sample",
                          choices = c("prolific", "SONA"),
                          selected = c("prolific", "SONA")),
@@ -25,16 +25,14 @@ ui <- fluidPage(
                   choices = NULL, multiple = TRUE),
       checkboxInput("filter_sig", "Show Only p < .05 in Heatmap", FALSE),
       checkboxInput("interactive", "Make Heatmap Interactive", TRUE),
-      actionButton("run_model", "Run Logistic Models"),
-      hr(),
-      radioButtons("table_format", "Display Format",
-                   choices = c("Summary Table", "Regression Table"),
-                   selected = "Summary Table")
+      actionButton("run_model", "Run Logistic Models")
     ),
 
     mainPanel(
       tabsetPanel(
-        tabPanel("Distribution Plot", plotOutput("descriptives_plot")),
+        if (interactive()) {
+       tabPanel("Distribution Plot", plotOutput("descriptives_plot"))
+        },
         tabPanel("Odds Ratios Heatmap",
                  conditionalPanel(
                    condition = "input.interactive == true",
@@ -46,6 +44,7 @@ ui <- fluidPage(
                  )
         ),
         tabPanel("Model Results",
+
                  conditionalPanel(
                    condition = "input.table_format == 'Summary Table'",
                    DTOutput("table_out")
@@ -53,7 +52,10 @@ ui <- fluidPage(
                  conditionalPanel(
                    condition = "input.table_format == 'Regression Table'",
                    DTOutput("regression_style_table")
-                 )
+                 ),
+radioButtons("table_format", "Display Format",
+             choices = c("Summary Table", "Regression Table"),
+             selected = "Summary Table",inline = TRUE)
       )
     )
   )
@@ -79,16 +81,12 @@ server <- function(input, output, session) {
     merged_data %>% filter(sample %in% input$samples)
   })
 
- # model_results <- eventReactive(input$run_model, {
- #   req(input$outcome_vars)
- #   req(input$predictor_vars)
- #   compute_odds_ratios(filtered_data(), input$outcome_vars, input$predictor_vars)
-#  })
+
 
 
   model_results <- eventReactive(input$run_model, {
-    req(input$outcome_vars, input$outcome_vars)
-
+    req(input$outcome_vars, input$predictor_vars)
+    
     dataset_name <- if (identical(input$samples, c("SONA"))) {
       "sona"
     } else if (identical(input$samples, c("prolific"))) {
@@ -111,11 +109,11 @@ return(bind_rows(model_results_list))#, .id = "outcome_id"))
   output$descriptives_plot <- renderPlot({
     req(input$plot_var)
     df <- filtered_data()
-
+    if (nrow(df) == 0) return(NULL)
     var <- input$plot_var
 # add title of dataset
     if (is.numeric(df[[var]])) {
-      ggplot(df, aes(x =  .data[[var]], fill = "sample")) +
+      ggplot(df, aes(x =  .data[[var]], fill = sample)) +
         geom_density(alpha = 0.5) +
         labs(title = glue::glue("Density Plot of {var} by Sample"),
              x = var, y = "Density") +
@@ -124,7 +122,7 @@ return(bind_rows(model_results_list))#, .id = "outcome_id"))
     } else if (is.factor(df[[var]]) || is.character(df[[var]])) {
       df[[var]] <- as.factor(df[[var]])
 
-      ggplot(df, aes(x =  .data[[var]], fill = "sample")) +
+      ggplot(df, aes(x =  .data[[var]], fill = sample)) +
         geom_bar(position = "dodge") +
         labs(title = glue::glue("Bar Plot of {var} by Sample"),
              x = var, y = "Count") +
@@ -137,6 +135,7 @@ return(bind_rows(model_results_list))#, .id = "outcome_id"))
 
   output$heatmap_plot_plotly <- renderPlotly({
     df <- model_results()
+    if (nrow(df) == 0) return(NULL)
     if (input$filter_sig) df <- df %>% filter(p.value < 0.05)
     df <- df %>% mutate(log_odds = log(estimate)) #%>%
     #  filter(!term %in% c("(Intercept)","Intercept","intercept"))
@@ -163,8 +162,10 @@ p
 
   output$heatmap_plot <- renderPlot({
     df <- model_results()
+    if (nrow(df) == 0) return(NULL)
     if (input$filter_sig) df <- df %>% filter(p.value < 0.05)
-    df <- df %>% mutate(log_odds = log(estimate)) #%>%
+    df <- df %>% mutate(log_odds = round(log(estimate),digits = 3))
+      
      # filter(!term %in% c("(Intercept)","Intercept","intercept"))
     ggplot(df, aes(x = predictor, y = outcome, fill = log_odds)) +
       geom_tile() +
@@ -177,6 +178,7 @@ p
   
   output$table_out <- DT::renderDT({
     df <- model_results()
+    if (nrow(df) == 0) return(NULL)
     if (input$filter_sig) df <- df %>% filter(p.value < 0.05)
     # term,estimate,std.error,statistic,p.value,conf.low,conf.high,predictor,outcome,null.deviance,df.null,logLik,AIC,BIC,deviance,df.residual,nobs
     df <- df %>%
@@ -190,7 +192,7 @@ p
       extensions = "Buttons",
       options = list(
         dom = 'Bfrtip',
-        buttons = c('copy', 'csv', 'excel'),
+        buttons = c('copy', 'csv'),
         scrollX = TRUE,
         pageLength = 10,
         autoWidth = TRUE,
@@ -210,7 +212,7 @@ p
   
   output$regression_style_table <-  DT::renderDT({
     df <- model_results()
-    
+    if (nrow(df) == 0) return(NULL)
     if (input$filter_sig) {
       df <- df %>% filter(p.value < 0.05)
     }
@@ -224,7 +226,7 @@ p
           p.value < 0.05 ~ "*",
           TRUE ~ ""
         ),
-        formatted = paste0(round(estimate, 2), stars, "<br>(", round(std.error, 2), ")")
+        formatted = paste0(round(estimate, 3), stars, "<br>(", round(std.error, 2), ")")
       )
 
     # Extract coefficients
@@ -236,7 +238,7 @@ p
       select(model_id, AIC, logLik, nobs) %>%
       distinct() %>%
       pivot_longer(cols = c(AIC, logLik, nobs), names_to = "term", values_to = "formatted") %>%
-      mutate(formatted = as.character(round(formatted, 2)))
+      mutate(formatted = as.character(round(formatted, 3)))
     # Combine everything
     all_rows <- bind_rows(coef_rows, stats_rows)
     
