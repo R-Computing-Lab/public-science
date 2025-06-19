@@ -38,7 +38,7 @@ install_packages_if_missing <- function(packages) {
 
 ## good workaround for stupid default setting; runningg mean function but we are overriding default
 new_mean=function(x){
-  mean(x,na.rm=TRUE)
+  mean(x,na.rm = TRUE)
 }
 
 # Load and merge data once on startup
