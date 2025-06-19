@@ -47,3 +47,9 @@ po/*~
 
 # RStudio Connect folder
 rsconnect/
+data/expansions.csv
+data/data.R
+images/screenshot.png
+images/select_industry.png
+images/select_contract.png
+images/select_propensity.png
