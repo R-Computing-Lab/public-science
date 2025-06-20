@@ -22,6 +22,8 @@ ui <- fluidPage(
       ), helpText(
         "Select samples to filter the data. If no samples are selected, all data will be used."
       ),
+      checkboxInput("standardized_predictors", "Standardize Continuous varibles", TRUE),
+      
       hr(),
       selectInput("outcome_vars", "Select Outcomes for Logistic Regression",
         choices = NULL, multiple = TRUE
@@ -146,10 +148,15 @@ server <- function(input, output, session) {
       "merged"
     }
 
+    standardized_predictors  <- if (input$standardized_predictors == TRUE) {
+      "standardized"
+    } else {
+      "raw"
+    }
     model_results_list <- list()
 
     for (outcome in input$outcome_vars) {
-      filename <- glue("data/{dataset_name}__{outcome}.rds")
+      filename <- glue("data/{standardized_predictors}_{dataset_name}__{outcome}.rds")
       model_results_list[[outcome]] <- readRDS(filename) %>%
         filter(predictor %in% input$predictor_vars)
     }
