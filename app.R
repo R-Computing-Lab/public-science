@@ -4,7 +4,7 @@ library(bslib)
 library(thematic)
 library(tidyverse)
 library(gitlink)
-
+library(qrcode)
 source("setup.R")
 
 # Set the default theme for ggplot2 plots
@@ -124,7 +124,7 @@ server <- function(input, output, session) {
       width = 150,
       height = 150
     )
-  })
+  }, deleteFile = TRUE)
 
   output$qrcode_link <- renderUI({
     tags$a(
