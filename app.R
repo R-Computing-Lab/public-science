@@ -4,7 +4,7 @@ library(bslib)
 library(thematic)
 library(tidyverse)
 library(gitlink)
-library(qrcode)
+
 source("setup.R")
 
 # Set the default theme for ggplot2 plots
@@ -110,6 +110,7 @@ server <- function(input, output, session) {
     merged_data %>% filter(sample %in% input$samples)
   })
 
+
   output$qrcode_img <- renderImage({
     tmpfile <- tempfile(fileext = ".png")
     url <- "https://smasongarrison-publicscience.share.connect.posit.cloud/"
@@ -133,6 +134,7 @@ server <- function(input, output, session) {
     )
   })
   #
+
   model_results <- eventReactive(input$run_model, {
     req(input$outcome_vars, input$predictor_vars)
 
