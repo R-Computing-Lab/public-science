@@ -11,6 +11,7 @@ source("setup.R")
 # UI
 ui <- fluidPage(
   titlePanel("Behavior Genetics Research Participation Explorer"),
+  
   sidebarLayout(
     sidebarPanel(
       if (interactive()) {
@@ -19,6 +20,8 @@ ui <- fluidPage(
       checkboxGroupInput("samples", "Filter by Sample",
         choices = c("prolific", "SONA"),
         selected = c("prolific", "SONA")
+      ), helpText(
+        "Select samples to filter the data. If no samples are selected, all data will be used."
       ),
       hr(),
       selectInput("outcome_vars", "Select Outcomes for Logistic Regression",
@@ -37,10 +40,15 @@ ui <- fluidPage(
           tabPanel("Distribution Plot", plotOutput("descriptives_plot"))
         },
         tabPanel("Outcome Variable Reference",
-                   DTOutput("outcome_reference_table")
+          helpText("This table provides descriptions of the outcome variables used in the logistic regression models."),
+          h2("Outcome Prompt"),
+          p("Please take your time and read through the following list. Assume that you would be compensated for your time. This is hypothetical, so also assume that you have free time that would allow you to participate."
+          ),
+                 DTOutput("outcome_reference_table")
         ),
         tabPanel(
           "Odds Ratios Heatmap",
+          helpText("This heatmap displays the odds ratios for each predictor variable across different outcome variables."),
           checkboxInput("filter_sig_heat", "Show Only p < .05 in Heatmap", FALSE),
           conditionalPanel(
             condition = "input.heatmap_interactive == true",
@@ -58,10 +66,12 @@ ui <- fluidPage(
                        selected = "Summary Table", inline = TRUE
           ),
           conditionalPanel(
+            helpText("This table displays the results of the logistic regression models, including estimates, p-values, and confidence intervals."),
             condition = "input.table_format == 'Summary Table'",
             DTOutput("table_out")
           ),
           conditionalPanel(
+            helpText("This table displays the results of the logistic regression models in a format similar to regression tables, with coefficients, standard errors, and significance stars. Each column represents a different model."),
             condition = "input.table_format == 'Regression Table'",
             DTOutput("regression_style_table")
           ),
@@ -75,7 +85,6 @@ ui <- fluidPage(
 # Server
 server <- function(input, output, session) {
   merged_data <- load_clean_data()
-
   observe({
     all_vars <- names(merged_data)
     updateSelectInput(session, "plot_var", choices = all_vars, selected = "age")
@@ -86,7 +95,7 @@ server <- function(input, output, session) {
                       selected = "research_type_12")
     updateSelectInput(session, "predictor_vars",
       choices = predictor_choices,
-      selected = "race_combined"
+      selected = "age"
     )
   })
 
@@ -117,7 +126,6 @@ server <- function(input, output, session) {
     }
     return(bind_rows(model_results_list)) # , .id = "outcome_id"))
   })
-core_item <-  "Please take your time and read through the following list. Assume that you would be compensated for your time. This is hypothetical, so also assume that you have &quot;free time&quot; that would allow you to participate."
   outcome_reference <- tibble::tibble(
     Variable_name = c("research_type_1",
                 "research_type_2",
@@ -151,7 +159,7 @@ core_item <-  "Please take your time and read through the following list. Assume
     )
     
   
-  
+  # Render the outcome reference table
   output$outcome_reference_table <- DT::renderDT({
     DT::datatable(
       outcome_reference,
