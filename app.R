@@ -4,7 +4,7 @@ library(bslib)
 library(thematic)
 library(tidyverse)
 library(gitlink)
-
+library(qrcode)
 source("setup.R")
 
 # Set the default theme for ggplot2 plots
@@ -32,7 +32,12 @@ ui <- fluidPage(
       ),
       actionButton("run_model", "Run Logistic Models"),
       hr(),
-      checkboxInput("heatmap_interactive", "Make Heatmap Interactive", TRUE)
+      checkboxInput("heatmap_interactive", "Make Heatmap Interactive", TRUE),
+      hr(),
+      h4("Access App on Mobile"),
+      # click goes to 
+      uiOutput("qrcode_link"),
+      helpText("Scan the QR code or click it to open the app in a new tab."),
     ),
     mainPanel(
       tabsetPanel(
@@ -84,6 +89,7 @@ ui <- fluidPage(
 
 # Server
 server <- function(input, output, session) {
+  
   merged_data <- load_clean_data()
   observe({
     all_vars <- names(merged_data)
@@ -104,8 +110,30 @@ server <- function(input, output, session) {
     req(input$samples)
     merged_data %>% filter(sample %in% input$samples)
   })
-
-
+  
+  output$qrcode_img <-  renderImage({
+    tmpfile <- tempfile(fileext = ".png")
+    url <- "https://smasongarrison-publicscience.share.connect.posit.cloud/"
+    png(tmpfile, width = 300, height = 300)
+    plot(qrcode::qr_code(url))
+    dev.off()
+    list(
+      src = tmpfile,
+      contentType = "image/png",
+      alt = "QR Code",
+      width = 150,
+      height = 150
+    )
+  })
+  
+  output$qrcode_link <- renderUI({
+    tags$a(
+      href = "https://smasongarrison-publicscience.share.connect.posit.cloud/",
+      target = "_blank",
+      imageOutput("qrcode_img", width = "50%", height = "50%")
+    )
+  })
+# 
   model_results <- eventReactive(input$run_model, {
     req(input$outcome_vars, input$predictor_vars)
 
