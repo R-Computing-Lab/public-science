@@ -11,7 +11,6 @@ source("setup.R")
 # UI
 ui <- fluidPage(
   titlePanel("Behavior Genetics Research Participation Explorer"),
-  
   sidebarLayout(
     sidebarPanel(
       if (interactive()) {
@@ -32,19 +31,24 @@ ui <- fluidPage(
       ),
       actionButton("run_model", "Run Logistic Models"),
       hr(),
-      checkboxInput("heatmap_interactive", "Make Heatmap Interactive", TRUE)
+      checkboxInput("heatmap_interactive", "Make Heatmap Interactive", TRUE),
+      hr(),
+      h4("Access App on Mobile"),
+      # click goes to
+      uiOutput("qrcode_link"),
+      helpText("Scan the QR code or click it to open the app in a new tab."),
     ),
     mainPanel(
       tabsetPanel(
         if (interactive()) {
           tabPanel("Distribution Plot", plotOutput("descriptives_plot"))
         },
-        tabPanel("Outcome Variable Reference",
+        tabPanel(
+          "Outcome Variable Reference",
           helpText("This table provides descriptions of the outcome variables used in the logistic regression models."),
           h2("Outcome Prompt"),
-          p("Please take your time and read through the following list. Assume that you would be compensated for your time. This is hypothetical, so also assume that you have free time that would allow you to participate."
-          ),
-                 DTOutput("outcome_reference_table")
+          p("Please take your time and read through the following list. Assume that you would be compensated for your time. This is hypothetical, so also assume that you have free time that would allow you to participate."),
+          DTOutput("outcome_reference_table")
         ),
         tabPanel(
           "Odds Ratios Heatmap",
@@ -62,8 +66,8 @@ ui <- fluidPage(
         tabPanel(
           "Model Results",
           radioButtons("table_format", "Display Format",
-                       choices = c("Summary Table", "Regression Table"),
-                       selected = "Summary Table", inline = TRUE
+            choices = c("Summary Table", "Regression Table"),
+            selected = "Summary Table", inline = TRUE
           ),
           conditionalPanel(
             helpText("This table displays the results of the logistic regression models, including estimates, p-values, and confidence intervals."),
@@ -90,9 +94,10 @@ server <- function(input, output, session) {
     updateSelectInput(session, "plot_var", choices = all_vars, selected = "age")
     outcome_choices <- all_vars[str_detect(all_vars, "^research")]
     predictor_choices <- all_vars
-    updateSelectInput(session, "outcome_vars", 
-                      choices = outcome_choices, 
-                      selected = "research_type_12")
+    updateSelectInput(session, "outcome_vars",
+      choices = outcome_choices,
+      selected = "research_type_12"
+    )
     updateSelectInput(session, "predictor_vars",
       choices = predictor_choices,
       selected = "age"
@@ -105,6 +110,30 @@ server <- function(input, output, session) {
     merged_data %>% filter(sample %in% input$samples)
   })
 
+
+  output$qrcode_img <- renderImage({
+    tmpfile <- tempfile(fileext = ".png")
+    url <- "https://smasongarrison-publicscience.share.connect.posit.cloud/"
+    png(tmpfile, width = 300, height = 300)
+    plot(qrcode::qr_code(url))
+    dev.off()
+    list(
+      src = tmpfile,
+      contentType = "image/png",
+      alt = "QR Code",
+      width = 150,
+      height = 150
+    )
+  })
+
+  output$qrcode_link <- renderUI({
+    tags$a(
+      href = "https://smasongarrison-publicscience.share.connect.posit.cloud/",
+      target = "_blank",
+      imageOutput("qrcode_img", width = "50%", height = "50%")
+    )
+  })
+  #
 
   model_results <- eventReactive(input$run_model, {
     req(input$outcome_vars, input$predictor_vars)
@@ -127,20 +156,21 @@ server <- function(input, output, session) {
     return(bind_rows(model_results_list)) # , .id = "outcome_id"))
   })
   outcome_reference <- tibble::tibble(
-    Variable_name = c("research_type_1",
-                "research_type_2",
-                "research_type_3",
-                "research_type_4",
-                "research_type_5",
-                "research_type_6",
-                "research_type_7",
-                "research_type_8",
-                "research_type_9updated",
-                "research_type_10updated",
-                "research_type_11",
-                "research_type_12",
-                "research_type_13"
-                ),
+    Variable_name = c(
+      "research_type_1",
+      "research_type_2",
+      "research_type_3",
+      "research_type_4",
+      "research_type_5",
+      "research_type_6",
+      "research_type_7",
+      "research_type_8",
+      "research_type_9updated",
+      "research_type_10updated",
+      "research_type_11",
+      "research_type_12",
+      "research_type_13"
+    ),
     Description = c(
       "Research Type 1: Questionnaire/Survey",
       "Research Type 2: Focus group in-person",
@@ -156,9 +186,9 @@ server <- function(input, output, session) {
       "Research Type 12: Eye-tracking",
       "Research Type 13: EEG, MRI, PET scan"
     )
-    )
-    
-  
+  )
+
+
   # Render the outcome reference table
   output$outcome_reference_table <- DT::renderDT({
     DT::datatable(
@@ -172,8 +202,8 @@ server <- function(input, output, session) {
       )
     )
   })
-  
-  
+
+
   output$descriptives_plot <- renderPlot({
     req(input$plot_var)
     df <- filtered_data()
@@ -210,7 +240,7 @@ server <- function(input, output, session) {
 
   output$heatmap_plot_plotly <- renderPlotly({
     df <- model_results()
-    if (input$filter_sig_heat==TRUE) df <- df %>% filter(p.value < 0.05)
+    if (input$filter_sig_heat == TRUE) df <- df %>% filter(p.value < 0.05)
     if (nrow(df) == 0) {
       return(NULL)
     }
@@ -238,7 +268,7 @@ server <- function(input, output, session) {
 
   output$heatmap_plot <- renderPlot({
     df <- model_results()
-    if (input$filter_sig_heat==TRUE) df <- df %>% filter(p.value < 0.05)
+    if (input$filter_sig_heat == TRUE) df <- df %>% filter(p.value < 0.05)
     if (nrow(df) == 0) {
       return(NULL)
     }
@@ -260,7 +290,7 @@ server <- function(input, output, session) {
     if (nrow(df) == 0) {
       return(NULL)
     }
-    if (input$filter_sig_table==TRUE) df <- df %>% filter(p.value < 0.05)
+    if (input$filter_sig_table == TRUE) df <- df %>% filter(p.value < 0.05)
     # term,estimate,std.error,statistic,p.value,conf.low,conf.high,predictor,outcome,null.deviance,df.null,logLik,AIC,BIC,deviance,df.residual,nobs
     df <- df %>%
       select(outcome, predictor, term, estimate, p.value, conf.low, conf.high, nobs) %>%
@@ -296,7 +326,7 @@ server <- function(input, output, session) {
     if (nrow(df) == 0) {
       return(NULL)
     }
-    if (input$filter_sig_table==TRUE) {
+    if (input$filter_sig_table == TRUE) {
       df <- df %>% filter(p.value < 0.05)
     }
 
