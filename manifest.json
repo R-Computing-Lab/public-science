@@ -269,6 +269,29 @@
         "Archs": "x64"
       }
     },
+    "assertthat": {
+      "Source": "CRAN",
+      "Repository": "https://cran.rstudio.com",
+      "description": {
+        "Package": "assertthat",
+        "Title": "Easy Pre and Post Assertions",
+        "Version": "0.2.1",
+        "Authors@R": "\n  person(\"Hadley\", \"Wickham\", , \"hadley@rstudio.com\", c(\"aut\", \"cre\"))",
+        "Description": "An extension to stopifnot() that makes it easy to declare \n    the pre and post conditions that you code should satisfy, while also \n    producing friendly error messages so that your users know what's gone\n    wrong.",
+        "License": "GPL-3",
+        "Imports": "tools",
+        "Suggests": "testthat, covr",
+        "RoxygenNote": "6.0.1",
+        "Collate": "'assert-that.r' 'on-failure.r' 'assertions-file.r'\n'assertions-scalar.R' 'assertions.r' 'base.r'\n'base-comparison.r' 'base-is.r' 'base-logical.r' 'base-misc.r'\n'utils.r' 'validate-that.R'",
+        "NeedsCompilation": "no",
+        "Packaged": "2019-03-21 13:11:01 UTC; hadley",
+        "Author": "Hadley Wickham [aut, cre]",
+        "Maintainer": "Hadley Wickham <hadley@rstudio.com>",
+        "Repository": "CRAN",
+        "Date/Publication": "2019-03-21 14:53:46 UTC",
+        "Built": "R 4.5.0; ; 2025-04-14 00:38:26 UTC; windows"
+      }
+    },
     "backports": {
       "Source": "CRAN",
       "Repository": "https://cran.rstudio.com",
@@ -2508,6 +2531,36 @@
         "Archs": "x64"
       }
     },
+    "qrcode": {
+      "Source": "CRAN",
+      "Repository": "https://cran.rstudio.com",
+      "description": {
+        "Type": "Package",
+        "Package": "qrcode",
+        "Title": "Generate QRcodes with R",
+        "Version": "0.3.0",
+        "Authors@R": "c(\n    person(\"Thierry\", \"Onkelinx\", , \"qrcode@muscardinus.be\", role = c(\"aut\", \"cre\"),\n           comment = c(\"Author of the reimplemented functions\", ORCID = \"0000-0001-8804-4216\")),\n    person(\"Victor\", \"Teh\", , \"victorteh@gmail.com\", role = \"aut\",\n           comment = \"Original author\")\n  )",
+        "Description": "Create static QR codes in R. The content of the QR code is\n    exactly what the user defines. We don't add a redirect URL, making it\n    impossible for us to track the usage of the QR code. This allows to\n    generate fast, free to use and privacy friendly QR codes.",
+        "License": "GPL-3",
+        "URL": "https://thierryo.github.io/qrcode/,\nhttps://github.com/ThierryO/qrcode,\nhttps://doi.org/10.5281/zenodo.5040088",
+        "BugReports": "https://github.com/ThierryO/qrcode/issues",
+        "Depends": "R (>= 4.1.0)",
+        "Imports": "assertthat, stats, utils",
+        "Suggests": "httr, jpeg, knitr, opencv, png, rsvg, testthat (>= 3.0.0)",
+        "Config/checklist/keywords": "two-dimensional barcode; matrix barcode",
+        "Config/testthat/edition": "3",
+        "Encoding": "UTF-8",
+        "Language": "en-GB",
+        "RoxygenNote": "7.3.2",
+        "NeedsCompilation": "no",
+        "Packaged": "2024-09-29 16:12:05 UTC; thierry",
+        "Author": "Thierry Onkelinx [aut, cre] (Author of the reimplemented functions,\n    <https://orcid.org/0000-0001-8804-4216>),\n  Victor Teh [aut] (Original author)",
+        "Maintainer": "Thierry Onkelinx <qrcode@muscardinus.be>",
+        "Repository": "CRAN",
+        "Date/Publication": "2024-09-29 16:40:02 UTC",
+        "Built": "R 4.5.0; ; 2025-06-16 00:41:54 UTC; windows"
+      }
+    },
     "ragg": {
       "Source": "CRAN",
       "Repository": "https://cran.rstudio.com",
@@ -3801,34 +3854,136 @@
       "checksum": "05bdb783ee6514c8c072e47680af8ff7"
     },
     "app.R": {
-      "checksum": "64238f662938060ee98f6db40211f5a3"
+      "checksum": "bf72eab614cfc81ee88120dc226f0fd0"
     },
     "data/data.R": {
       "checksum": "a939a9b940520e49319b8d0d03313355"
     },
-    "data/expansions.csv": {
-      "checksum": "2c12cdc786ec26f4516dc29050cd285b"
+    "data/merged__research_type_1.rds": {
+      "checksum": "709aac9f036044d5252691a05b5e3ffa"
     },
-    "images/screenshot.png": {
-      "checksum": "6f6b2c15f95d5dab05a4672d6001591d"
+    "data/merged__research_type_10updated.rds": {
+      "checksum": "0222d9e4343223e220f0ae4928a8872d"
     },
-    "images/select_contract.png": {
-      "checksum": "c940034122ee82b05dedcead7951b2ac"
+    "data/merged__research_type_11.rds": {
+      "checksum": "0e0513f0548d427dc785fb48005cca24"
     },
-    "images/select_industry.png": {
-      "checksum": "ff0376a03379a4a5afdae6060c716e38"
+    "data/merged__research_type_12.rds": {
+      "checksum": "85e89438091239a2cbb48bba71e7431d"
     },
-    "images/select_propensity.png": {
-      "checksum": "9a09c4c985ef403d985eef67f89d22a6"
+    "data/merged__research_type_13.rds": {
+      "checksum": "0ed347f376f72195aa3ba10d4e099517"
+    },
+    "data/merged__research_type_2.rds": {
+      "checksum": "a3bbe77ece41a50346d0f45c7e0caf73"
+    },
+    "data/merged__research_type_3.rds": {
+      "checksum": "afd4a3508f73ec7cbf3637fe1b6c4fcb"
+    },
+    "data/merged__research_type_4.rds": {
+      "checksum": "22014b22fe490e7191cebb829c1c401c"
+    },
+    "data/merged__research_type_5.rds": {
+      "checksum": "4764e1efeef72c67d7d61383c53eb0a2"
+    },
+    "data/merged__research_type_6.rds": {
+      "checksum": "f3ff5c9208cfd145897ed34001a60812"
+    },
+    "data/merged__research_type_7.rds": {
+      "checksum": "99bf03d2785808b5fbdd88025ac3b742"
+    },
+    "data/merged__research_type_8.rds": {
+      "checksum": "8f17b8fd58f09b58335066bb51e0104a"
+    },
+    "data/merged__research_type_9updated.rds": {
+      "checksum": "5a1d9bc384a6cad6c228caf829a00076"
+    },
+    "data/names.csv": {
+      "checksum": "ae03b9b15427ff468546e5d797026ace"
+    },
+    "data/prolific__research_type_1.rds": {
+      "checksum": "158bade15fd0e030379919b38fcdbc61"
+    },
+    "data/prolific__research_type_10updated.rds": {
+      "checksum": "bd30c73f50c9de6d8b597dcd45d2a353"
+    },
+    "data/prolific__research_type_11.rds": {
+      "checksum": "350e4e8549b753215e56701b98572fce"
+    },
+    "data/prolific__research_type_12.rds": {
+      "checksum": "76a76ab76af6bc2047cf655156972ce7"
+    },
+    "data/prolific__research_type_13.rds": {
+      "checksum": "4b914d13c6d66554e010d738d2ec7f19"
+    },
+    "data/prolific__research_type_2.rds": {
+      "checksum": "2986e52ed05f20fb338439d0b6072117"
+    },
+    "data/prolific__research_type_3.rds": {
+      "checksum": "bda5f47d94f45124667b89ff38460ba4"
+    },
+    "data/prolific__research_type_4.rds": {
+      "checksum": "d9499764bc327093c3d758389e34ed04"
+    },
+    "data/prolific__research_type_5.rds": {
+      "checksum": "c4d790753eeb38b6628763b45e84911e"
+    },
+    "data/prolific__research_type_6.rds": {
+      "checksum": "0ca248165051d800c71c90b4c9349ffb"
+    },
+    "data/prolific__research_type_7.rds": {
+      "checksum": "e98181786374c5ab376006332b90c37f"
+    },
+    "data/prolific__research_type_8.rds": {
+      "checksum": "0253eb2efe32f805e5c1baf4b35289c7"
+    },
+    "data/prolific__research_type_9updated.rds": {
+      "checksum": "154c3ace16c1a7d2c5cf4dbfbba68d33"
+    },
+    "data/sona__research_type_1.rds": {
+      "checksum": "927a0c63abe51d4cee05a921727ef43e"
+    },
+    "data/sona__research_type_10updated.rds": {
+      "checksum": "0e6f266bbe37b1c1bb8afe5e83efd7b8"
+    },
+    "data/sona__research_type_11.rds": {
+      "checksum": "91ec50835630be216fca077e87ad9e92"
+    },
+    "data/sona__research_type_12.rds": {
+      "checksum": "255254bffbcef9a1a2e14391deb4de37"
+    },
+    "data/sona__research_type_13.rds": {
+      "checksum": "b8f5a3c1f8af5fdf93d1d540d632e3be"
+    },
+    "data/sona__research_type_2.rds": {
+      "checksum": "c0b314e6367cd9cfd8d68d3a195fdf67"
+    },
+    "data/sona__research_type_3.rds": {
+      "checksum": "fa88a3e160a09b492dce40f08fbc5069"
+    },
+    "data/sona__research_type_4.rds": {
+      "checksum": "b5eac2929b2c721cfafa6bc2fd4acc6a"
+    },
+    "data/sona__research_type_5.rds": {
+      "checksum": "049e3d95c5ce92fa2c6074e8d2a10721"
+    },
+    "data/sona__research_type_6.rds": {
+      "checksum": "82661bb6a784e6cd7104201c4f1069d0"
+    },
+    "data/sona__research_type_7.rds": {
+      "checksum": "a088ac7fe13de76b4a678c12b1860653"
+    },
+    "data/sona__research_type_8.rds": {
+      "checksum": "1c0b2f8b384e5d7b4636ac90c0c2c40b"
+    },
+    "data/sona__research_type_9updated.rds": {
+      "checksum": "8cb29fcc0c824423476e5d93b2b92e74"
     },
     "README.md": {
-      "checksum": "655faafa657a4cf00a83724e9daf7daf"
+      "checksum": "7b2f4e1e678c461af47dc956ddb249bc"
     },
     "setup.R": {
-      "checksum": "91ea1e2890a642fa39b89b51de71263a"
-    },
-    "www/logo.png": {
-      "checksum": "85049e9f0ab3362733bec5279abac7bd"
+      "checksum": "7b29467b9ec2bc6397379915065f212c"
     }
   },
   "users": null
