@@ -4,7 +4,7 @@ library(bslib)
 library(thematic)
 library(tidyverse)
 library(gitlink)
-library(qrcode)
+library(qrcode) 
 source("setup.R")
 
 # Set the default theme for ggplot2 plots
