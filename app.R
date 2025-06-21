@@ -76,7 +76,7 @@ ui <- fluidPage(
     tags$li("S. Mason Garrison, Wake Forest University")
   ),  h4("Contact"),
 
-  p("For questions or feedback, please contact: ", tags$a(href="mailto:garrissm@wfu.edu", "garrissm@wfu.edu")),
+  p("For questions or feedback, please contact: ", tags$a(href="mailto:garrissm@wfu.edu", "garrissm@wfu.edu"), "or ", tags$a(href="mailto:Shannon.OConnor@utoledo.edu", "Shannon.OConnor@utoledo.edu")),
             h4("Source Code"),
   p(
     "The full source code is available on ",
