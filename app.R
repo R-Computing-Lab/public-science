@@ -47,14 +47,36 @@ ui <- fluidPage(
         },
         tabPanel(
   "About",
+  h3("About This App"),
+  p(
+    "This interactive Shiny application allows users to explore predictors of willingness to participate in behavior genetic research. 
+     Users can visualize variable distributions across participant samples (Prolific and SONA), view outcome definitions, and run logistic regression models 
+     to examine how predictors relate to willingness to participate in different research types."
+  ),
+  p(
+    strong("Important: "),
+    "To view model results (tables and heatmaps), you must first select outcomes and predictors, then press the ",
+    strong("Run Logistic Models"),
+    " button in the sidebar. Model results will not appear or update until this is done."
+  ),
+          
   h3("Authors"),
   tags$ul(
     tags$li("Shannon M. O’Connor, University of Toledo"),
     tags$li("S. Mason Garrison, Wake Forest University")
-  ),
-  h4("Contact"),
-  p("For tech support, contact: ", tags$a(href="mailto:garrissm@wfu.edu", "garrissm@wfu.edu"))
-),
+  ),  h4("Contact"),
+
+  p("For questions or feedback, please contact: ", tags$a(href="mailto:garrissm@wfu.edu", "garrissm@wfu.edu")),
+            h4("Source Code"),
+  p(
+    "The full source code is available on ",
+    tags$a(
+      href = "https://github.com/R-Computing-Lab/public-science",
+      "GitHub",
+      target = "_blank"
+    ),
+    "."
+)),
         tabPanel(
           "Outcome Variable Reference",
           helpText("This table provides descriptions of the outcome variables used in the logistic regression models."),
