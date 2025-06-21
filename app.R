@@ -23,7 +23,6 @@ ui <- fluidPage(
         "Select samples to filter the data. If no samples are selected, all data will be used."
       ),
       checkboxInput("standardized_predictors", "Standardize Continuous varibles", TRUE),
-      
       hr(),
       selectInput("outcome_vars", "Select Outcomes for Logistic Regression",
         choices = NULL, multiple = TRUE
@@ -46,47 +45,51 @@ ui <- fluidPage(
           tabPanel("Distribution Plot", plotOutput("descriptives_plot"))
         },
         tabPanel(
-  "About",
+          "About",
           h3("About This Study"),
-          p("The present study aimed to explore",  tags$ul(
-    tags$li( 
-"the willingness of individuals within the general public to participate in genetic research,"), 
-    tags$li("whether willingness to participate in genetic research differed by age, gender, race, ethnicity, and education level,"), 
-    tags$li("whether an individual’s trust in research establishment, knowledge of genetics, level of worry, health anxiety, altruism, health status (for themselves or a loved one) predicted their willingness to participate in genetics research.,")),  
-"For individuals unwilling to provide a saliva sample/blood sample for genetic research, we explored",tags$ul(
-    tags$li("the primary reason for their unwillingness and "), 
-    tags$li("factors that impact their decision to participate in genetic research (e.g., compensation, confidentiality, analytic approach, topic studied, feedback options).")
-)),
-  h3("About This App"),
-  p(
-    "This interactive Shiny application allows users to explore predictors of willingness to participate in behavior genetic research. 
-     Users can visualize variable distributions across participant samples (Prolific and SONA), view outcome definitions, and run logistic regression models 
+          p(
+            "The present study aimed to explore", tags$ul(
+              tags$li(
+                "the willingness of individuals within the general public to participate in genetic research,"
+              ),
+              tags$li("whether willingness to participate in genetic research differed by age, gender, race, ethnicity, and education level,"),
+              tags$li("whether an individual’s trust in research establishment, knowledge of genetics, level of worry, health anxiety, altruism, health status (for themselves or a loved one) predicted their willingness to participate in genetics research.,")
+            ),
+            "For individuals unwilling to provide a saliva sample/blood sample for genetic research, we explored",
+            tags$ul(
+              tags$li("the primary reason for their unwillingness and "),
+              tags$li("factors that impact their decision to participate in genetic research (e.g., compensation, confidentiality, analytic approach, topic studied, feedback options).")
+            )
+          ),
+          h3("About This App"),
+          p(
+            "This interactive Shiny application allows users to explore predictors of willingness to participate in behavior genetic research.
+     Users can visualize variable distributions across participant samples (Prolific and SONA), view outcome definitions, and run logistic regression models
      to examine how predictors relate to willingness to participate in different research types."
-  ),
-  p(
-    strong("Important: "),
-    "To view model results (tables and heatmaps), you must first select outcomes and predictors, then press the ",
-    strong("Run Logistic Models"),
-    " button in the sidebar. Model results will not appear or update until this is done."
-  ),
-          
-  h3("Authors"),
-  tags$ul(
-    tags$li("Shannon M. O’Connor, University of Toledo"),
-    tags$li("S. Mason Garrison, Wake Forest University")
-  ),  h4("Contact"),
-
-  p("For questions or feedback, please contact: ", tags$a(href="mailto:garrissm@wfu.edu", "garrissm@wfu.edu"), "or ", tags$a(href="mailto:Shannon.OConnor@utoledo.edu", "Shannon.OConnor@utoledo.edu")),
-            h4("Source Code"),
-  p(
-    "The full source code is available on ",
-    tags$a(
-      href = "https://github.com/R-Computing-Lab/public-science",
-      "GitHub",
-      target = "_blank"
-    ),
-    "."
-)),
+          ),
+          p(
+            strong("Important: "),
+            "To view model results (tables and heatmaps), you must first select outcomes and predictors, then press the ",
+            strong("Run Logistic Models"),
+            " button in the sidebar. Model results will not appear or update until this is done."
+          ),
+          h3("Authors"),
+          tags$ul(
+            tags$li("Shannon M. O’Connor, University of Toledo"),
+            tags$li("S. Mason Garrison, Wake Forest University")
+          ), h4("Contact"),
+          p("For questions or feedback, please contact: ", tags$a(href = "mailto:garrissm@wfu.edu", "garrissm@wfu.edu"), "or ", tags$a(href = "mailto:Shannon.OConnor@utoledo.edu", "Shannon.OConnor@utoledo.edu")),
+          h4("Source Code"),
+          p(
+            "The full source code is available on ",
+            tags$a(
+              href = "https://github.com/R-Computing-Lab/public-science",
+              "GitHub",
+              target = "_blank"
+            ),
+            "."
+          )
+        ),
         tabPanel(
           "Outcome Variable Reference",
           helpText("This table provides descriptions of the outcome variables used in the logistic regression models."),
@@ -155,20 +158,23 @@ server <- function(input, output, session) {
   })
 
 
-  output$qrcode_img <- renderImage({
-    tmpfile <- tempfile(fileext = ".png")
-    url <- "https://smasongarrison-publicscience.share.connect.posit.cloud/"
-    png(tmpfile, width = 300, height = 300)
-    plot(qrcode::qr_code(url))
-    dev.off()
-    list(
-      src = tmpfile,
-      contentType = "image/png",
-      alt = "QR Code",
-      width = 150,
-      height = 150
-    )
-  }, deleteFile = TRUE)
+  output$qrcode_img <- renderImage(
+    {
+      tmpfile <- tempfile(fileext = ".png")
+      url <- "https://smasongarrison-publicscience.share.connect.posit.cloud/"
+      png(tmpfile, width = 300, height = 300)
+      plot(qrcode::qr_code(url))
+      dev.off()
+      list(
+        src = tmpfile,
+        contentType = "image/png",
+        alt = "QR Code",
+        width = 150,
+        height = 150
+      )
+    },
+    deleteFile = TRUE
+  )
 
   output$qrcode_link <- renderUI({
     tags$a(
@@ -190,7 +196,7 @@ server <- function(input, output, session) {
       "merged"
     }
 
-    standardized_predictors  <- if (input$standardized_predictors == TRUE) {
+    standardized_predictors <- if (input$standardized_predictors == TRUE) {
       "standardized"
     } else {
       "raw"
