@@ -47,6 +47,16 @@ ui <- fluidPage(
         },
         tabPanel(
   "About",
+          h3("About This Study"),
+          p("The present study aimed to explore",  tags$ul(
+    tags$li( 
+"the willingness of individuals within the general public to participate in genetic research,"), 
+    tags$li("whether willingness to participate in genetic research differed by age, gender, race, ethnicity, and education level,"), 
+    tags$li("whether an individual’s trust in research establishment, knowledge of genetics, level of worry, health anxiety, altruism, health status (for themselves or a loved one) predicted their willingness to participate in genetics research.,"),  
+"For individuals unwilling to provide a saliva sample/blood sample for genetic research, we explored",
+    tags$li("the primary reason for their unwillingness and "), 
+    tags$li("factors that impact their decision to participate in genetic research (e.g., compensation, confidentiality, analytic approach, topic studied, feedback options).")
+)),
   h3("About This App"),
   p(
     "This interactive Shiny application allows users to explore predictors of willingness to participate in behavior genetic research. 
