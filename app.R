@@ -10,7 +10,7 @@ source("setup.R")
 # Set the default theme for ggplot2 plots
 # UI
 ui <- fluidPage(
-  titlePanel("Behavior Genetics Research Participation Explorer"),
+  titlePanel("Who is Willing to Participate in Behavior Genetic Research? Exploring Barriers and Predictors"),
   sidebarLayout(
     sidebarPanel(
       if (interactive()) {
@@ -45,6 +45,16 @@ ui <- fluidPage(
         if (interactive()) {
           tabPanel("Distribution Plot", plotOutput("descriptives_plot"))
         },
+        tabPanel(
+  "About",
+  h3("Authors"),
+  tags$ul(
+    tags$li("Shannon M. O’Connor, University of Toledo"),
+    tags$li("S. Mason Garrison, Wake Forest University")
+  ),
+  h4("Contact"),
+  p("For tech support, contact: ", tags$a(href="mailto:garrissm@wfu.edu", "garrissm@wfu.edu"))
+),
         tabPanel(
           "Outcome Variable Reference",
           helpText("This table provides descriptions of the outcome variables used in the logistic regression models."),
@@ -98,7 +108,7 @@ server <- function(input, output, session) {
     predictor_choices <- all_vars
     updateSelectInput(session, "outcome_vars",
       choices = outcome_choices,
-      selected = "research_type_12"
+      selected = c("research_type_9updated", "research_type_10updated")
     )
     updateSelectInput(session, "predictor_vars",
       choices = predictor_choices,
