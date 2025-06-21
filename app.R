@@ -52,8 +52,8 @@ ui <- fluidPage(
     tags$li( 
 "the willingness of individuals within the general public to participate in genetic research,"), 
     tags$li("whether willingness to participate in genetic research differed by age, gender, race, ethnicity, and education level,"), 
-    tags$li("whether an individual’s trust in research establishment, knowledge of genetics, level of worry, health anxiety, altruism, health status (for themselves or a loved one) predicted their willingness to participate in genetics research.,"),  
-"For individuals unwilling to provide a saliva sample/blood sample for genetic research, we explored",
+    tags$li("whether an individual’s trust in research establishment, knowledge of genetics, level of worry, health anxiety, altruism, health status (for themselves or a loved one) predicted their willingness to participate in genetics research.,")),  
+"For individuals unwilling to provide a saliva sample/blood sample for genetic research, we explored",tags$ul(
     tags$li("the primary reason for their unwillingness and "), 
     tags$li("factors that impact their decision to participate in genetic research (e.g., compensation, confidentiality, analytic approach, topic studied, feedback options).")
 )),
