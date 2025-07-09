@@ -10,7 +10,7 @@ source("setup.R")
 # Set the default theme for ggplot2 plots
 # UI
 ui <- fluidPage(
-  titlePanel("Who is Willing to Participate in Behavior Genetic Research? Exploring Barriers and Predictors"),
+  titlePanel("Who is Willing to Participate in Behavior Genetic Research? Exploring Barriers and Predictors."),
   sidebarLayout(
     sidebarPanel(
       if (interactive()) {
