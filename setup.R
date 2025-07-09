@@ -48,26 +48,8 @@ load_clean_data <- function(return_all = FALSE) {
     #  stop("Data files not found. Please ensure the data files are in the 'data' directory.")
     names_df <- read.csv("data/predictor_vars.csv") %>% rename("name" = x)
     merged_data <- setNames(as.data.frame(matrix(nrow = 0, ncol = nrow(names_df))), names_df$name) %>% select(-c(
-    
-      
-      attention_check1r, attention_check2r,
-      attention_check3r, 
       research_type_9,
-      research_type_10,
-      miss_items_hai,
-      miss_items_pswq,
-      submissionid,
-      statusv_p,
-      customstudytncsacceptedatv_p,
-      startedatv_p,
-      completedatv_p,
-      reviewedatv_p,
-      archivedatv_p,
-      timetakenv_p,
-      totalapprovalsv_p,
-      duration_minutes,
-      attention_check2_sona,
-      attention_check3_sona
+      research_type_10
     ))
     return(merged_data)
   } else {
