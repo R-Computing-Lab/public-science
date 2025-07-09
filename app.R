@@ -18,7 +18,7 @@ ui <- fluidPage(
       },
       checkboxGroupInput("samples", "Filter by Sample",
         choices = c("prolific", "SONA"),
-        selected = c("prolific", "SONA")
+        selected = c("prolific")
       ), helpText(
         "Select samples to filter the data. If no samples are selected, all data will be used."
       ),
@@ -114,7 +114,7 @@ ui <- fluidPage(
           "Model Results",
           radioButtons("table_format", "Display Format",
             choices = c("Summary Table", "Regression Table"),
-            selected = "Summary Table", inline = TRUE
+            selected = "Regression Table", inline = TRUE
           ),
           conditionalPanel(
             helpText("This table displays the results of the logistic regression models, including estimates, p-values, and confidence intervals."),
