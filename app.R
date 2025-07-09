@@ -21,7 +21,7 @@ ui <- fluidPage(
         selected = c("prolific")
       ), helpText(
         "Select samples to filter the data. If no samples are selected, all data will be used."
-      ),
+      ), 
       checkboxInput("standardized_predictors", "Standardize Continuous varibles", TRUE),
       hr(),
       selectInput("outcome_vars", "Select Outcomes for Logistic Regression",
