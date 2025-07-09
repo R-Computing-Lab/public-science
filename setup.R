@@ -49,7 +49,7 @@ load_clean_data <- function(return_all = FALSE) {
     names_df <- read.csv("data/predictor_vars.csv") %>% rename("name" = x)
     merged_data <- setNames(as.data.frame(matrix(nrow = 0, ncol = nrow(names_df))), names_df$name) %>% select(-c(
     
-      attention_check3,
+      
       attention_check1r, attention_check2r,
       attention_check3r, 
       research_type_9,
