@@ -157,6 +157,7 @@
 "phealth_relative_total"
 "phealth_relative_any"
 "education_levels"
+"education_levels_noanswer"
 "highesteducation_mths"
 "gender_collapsed"
 "organized_religion_collapseChristianity"
