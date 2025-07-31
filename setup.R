@@ -42,13 +42,19 @@ new_mean <- function(x) {
 }
 
 load_variable_names <- function() {
-  if (!file.exists("data/predictor_vars.csv")) {
-    warning("Variable names file not found. Please ensure 'predictor_vars.csv' is in the 'data' directory.")
+  if (!file.exists("data/available_vars.csv")) {
+    warning("Variable names file not found. Please ensure 'available_vars.csv' is in the 'data' directory.")
     # use full list
-    prod_predictor_vars <- read.csv("data/names.csv") %>% rename("name" = x)
-    
+    if (!file.exists("data/predictor_vars.csv")) {
+      prod_predictor_vars <- read.csv("data/names.csv") %>% rename("name" = x)
+      
+    } else {
+    prod_predictor_vars <- read.csv("data/predictor_vars.csv") %>% rename("name" = x)
+}  
+  } else {
+    # use available vars
+    prod_predictor_vars <- read.csv("data/available_vars.csv") %>% rename("name" = x)
   }
-  prod_predictor_vars <- read.csv("data/predictor_vars.csv") %>% rename("name" = x)
   return(prod_predictor_vars)
 }
 
