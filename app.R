@@ -151,7 +151,7 @@ server <- function(input, output, session) {
     }
     
     default_selected_predictor_vars <- if (isTRUE(input$debug_mode)) {
-      "age"
+      all_vars[1] 
     } else {
       "age"
  #   if_else("age" %in% prod_predictor_vars,"age", paste0(prod_predictor_vars[1]))
