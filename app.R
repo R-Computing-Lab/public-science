@@ -38,6 +38,8 @@ ui <- fluidPage(
       # click goes to
       uiOutput("qrcode_link"),
       helpText("Scan the QR code or click it to open the app in a new tab."),
+      checkboxInput("debug_mode", "Enable Debug Mode (Show All Predictors)", FALSE),
+      helpText("Debug mode shows all possible predictors")
     ),
     mainPanel(
       tabsetPanel(
@@ -135,19 +137,33 @@ ui <- fluidPage(
 
 # Server
 server <- function(input, output, session) {
+  prod_predictor_vars <- load_variable_names()
   merged_data <- load_clean_data()
   observe({
     all_vars <- names(merged_data)
     updateSelectInput(session, "plot_var", choices = all_vars, selected = "age")
     outcome_choices <- all_vars[str_detect(all_vars, "^research")]
-    predictor_choices <- all_vars
+
+    predictor_choices <- if (isTRUE(input$debug_mode)) {
+      all_vars
+    } else {
+      prod_predictor_vars
+    }
+    
+    default_selected_predictor_vars <- if (isTRUE(input$debug_mode)) {
+      "age"
+    } else {
+      "age"
+ #   if_else("age" %in% prod_predictor_vars,"age", paste0(prod_predictor_vars[1]))
+    }
+
     updateSelectInput(session, "outcome_vars",
       choices = outcome_choices,
       selected = c("research_type_9updated", "research_type_10updated")
     )
     updateSelectInput(session, "predictor_vars",
       choices = predictor_choices,
-      selected = "age"
+      selected = default_selected_predictor_vars
     )
   })
 

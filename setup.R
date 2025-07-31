@@ -41,6 +41,18 @@ new_mean <- function(x) {
   mean(x, na.rm = TRUE)
 }
 
+load_variable_names <- function() {
+  if (!file.exists("data/predictor_vars.csv")) {
+    warning("Variable names file not found. Please ensure 'predictor_vars.csv' is in the 'data' directory.")
+    # use full list
+    prod_predictor_vars <- read.csv("data/names.csv") %>% rename("name" = x)
+    
+  }
+  prod_predictor_vars <- read.csv("data/predictor_vars.csv") %>% rename("name" = x)
+  return(prod_predictor_vars)
+}
+
+
 # Load and merge data once on startup
 load_clean_data <- function(return_all = FALSE) {
   if (!file.exists("data/Prolific - Willingness to Participate in Research_Cleaning_v2.sav") ||
