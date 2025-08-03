@@ -5,6 +5,8 @@ library(thematic)
 library(tidyverse)
 library(gitlink)
 library(qrcode)
+library(DT)
+library(haven)
 source("setup.R")
 
 # Set the default theme for ggplot2 plots
@@ -30,9 +32,10 @@ ui <- fluidPage(
       selectInput("predictor_vars", "Select Predictors for Logistic Regression",
         choices = NULL, multiple = TRUE
       ),
-      actionButton("run_model", "Run Logistic Models"),
+      actionButton("run_model", "Run Models"),
       hr(),
-      checkboxInput("heatmap_interactive", "Make Heatmap Interactive", TRUE),
+      checkboxInput("heatmap_interactive",
+                    "Make Heatmap Interactive", TRUE),
       hr(),
       h4("Access App on Mobile"),
       # click goes to
@@ -43,9 +46,6 @@ ui <- fluidPage(
     ),
     mainPanel(
       tabsetPanel(
-        if (interactive()) {
-          tabPanel("Distribution Plot", plotOutput("descriptives_plot"))
-        },
         tabPanel(
           "About",
           h3("About This Study"),
@@ -112,6 +112,17 @@ ui <- fluidPage(
             plotOutput("heatmap_plot")
           )
         ),
+        if (interactive()) {
+          tabPanel("Distribution Plot", plotOutput("descriptives_plot"))
+        },
+          tabPanel("Summary Statistics",
+                       helpText("This table displays precomputed summary statistics for numeric and categorical variables."),
+                   h2("Numeric Summary Statistics"),
+                       DTOutput("summary_stats_table"),
+                   h2("Categorical Summary Statistics"),
+                   DTOutput("value_counts_table"),
+                   )
+        ,
         tabPanel(
           "Model Results",
           radioButtons("table_format", "Display Format",
@@ -200,7 +211,76 @@ server <- function(input, output, session) {
     )
   })
   #
-
+  output$summary_stats_table <- DT::renderDT({
+    req(input$predictor_vars)
+    
+    dataset_name <- if (identical(input$samples, c("SONA"))) {
+      "sona"
+    } else if (identical(input$samples, c("prolific"))) {
+      "prolific"
+    } else {
+      "merged"
+    }
+    
+    standardized_predictors <- if (input$standardized_predictors == TRUE) {
+      "standardized"
+    } else {
+      "raw"
+    }
+    filename <- glue("data/{standardized_predictors}_{dataset_name}__summary_stats.csv")
+   
+     if (!file.exists(filename)) return(NULL)
+      summary_stats <- read.csv(filename) %>%
+      filter(variable %in% c(input$predictor_vars,input$outcome_vars))
+    
+    # Show numeric and categorical in one table
+    DT::datatable(
+      summary_stats,
+      rownames = FALSE,
+      options = list(pageLength = 15, scrollX = TRUE)
+    )  %>%
+      DT::formatRound(columns = c("mean","sd","min","q25","median",
+                                  "q75","max","mode"), 
+                      digits = 3) %>%
+      DT::formatRound(columns = c("n_total","n_missing","unique"), digits = 0)
+  })
+  output$value_counts_table <- DT::renderDT({
+    req(input$outcome_vars, input$predictor_vars)
+    
+    dataset_name <- if (identical(input$samples, c("SONA"))) {
+      "sona"
+    } else if (identical(input$samples, c("prolific"))) {
+      "prolific"
+    } else {
+      "merged"
+    }
+    
+    standardized_predictors <- if (input$standardized_predictors == TRUE) {
+      "standardized"
+    } else {
+      "raw"
+    }
+    filename <- glue("data/{standardized_predictors}_{dataset_name}__value_counts.rds")
+    
+    if (!file.exists(filename)) return(NULL)
+    value_counts <- readRDS(filename) %>%
+      filter(variable %in% c(input$predictor_vars,input$outcome_vars)) %>%
+      filter(!is.na(value)) %>%
+      filter(!value  %in% c("more than 20 options", "empty"))
+    
+    if (nrow(value_counts) == 0) {
+      return(NULL)
+    }
+    
+    # Show numeric and categorical in one table
+    DT::datatable(
+      value_counts,
+      filter = "top",
+      rownames = FALSE,
+      options = list(pageLength = 35, scrollX = TRUE)
+    )
+  })
+  
   model_results <- eventReactive(input$run_model, {
     req(input$outcome_vars, input$predictor_vars)
 
@@ -376,7 +456,7 @@ server <- function(input, output, session) {
         dom = "Bfrtip",
         buttons = c("copy", "csv"),
         scrollX = TRUE,
-        pageLength = 10,
+        pageLength = 15,
         autoWidth = TRUE,
         columnDefs = list(
           list(className = "dt-center", targets = "_all")
