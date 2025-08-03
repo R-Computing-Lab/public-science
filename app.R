@@ -266,7 +266,7 @@ server <- function(input, output, session) {
     value_counts <- readRDS(filename) %>%
       filter(variable %in% c(input$predictor_vars,input$outcome_vars)) %>%
       filter(!is.na(value)) %>%
-      filter(!value  %in% c("more than 20 options", "empty"))
+      filter(!value  %in% c("more than 20 options", "empty","numeric"))
     
     if (nrow(value_counts) == 0) {
       return(NULL)
