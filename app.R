@@ -67,7 +67,8 @@ ui <- fluidPage(
           p(
             "This interactive Shiny application allows users to explore predictors of willingness to participate in behavior genetic research.
      Users can visualize variable distributions across participant samples (Prolific and SONA), view outcome definitions, and run logistic regression models
-     to examine how predictors relate to willingness to participate in different research types."
+     to examine how predictors relate to willingness to participate in different research types. Please see the full article for additional information:
+            O’Connor, S.M., Garrison, S.M. Who is Willing to Participate in Genetic Research? Exploring Barriers and Predictors. Behavior Genetics (2025). https://doi.org/10.1007/s10519-025-10243-z"
           ),
           p(
             strong("Important: "),
